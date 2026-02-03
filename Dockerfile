@@ -7,14 +7,15 @@ RUN apt-get update && apt-get install -y \
 
 RUN a2enmod rewrite
 
-# Use JSON syntax for the filename with spaces
+# 1. Copy the zip using JSON syntax
 COPY ["pet shop management.zip", "/tmp/"]
 
-# Unzip, move files if they are in a subfolder, and fix permissions
-RUN unzip "/tmp/pet shop management.zip" -d /var/www/html/ \
-    && rm "/tmp/pet shop management.zip" \
-    && chmod -R 755 /var/www/html \
-    && chown -R www-data:www-data /var/www/html
+# 2. Extract, move contents to root, and fix permissions
+RUN unzip "/tmp/pet shop management.zip" -d /tmp/extracted/ \
+    && cp -rn /tmp/extracted/*/. /var/www/html/ || cp -rn /tmp/extracted/. /var/www/html/ \
+    && rm -rf /tmp/extracted "/tmp/pet shop management.zip" \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
 WORKDIR /var/www/html
 EXPOSE 80
